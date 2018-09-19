@@ -90,6 +90,10 @@ class SocketWorker : Thread(), SocketContract {
         }
     }
 
+    fun setSocketListener(socketListener: SocketListener?){
+        listener = socketListener
+    }
+
     override fun in_sendLoginRequest() {
         with(readerStream) {
             val request = readLine()
