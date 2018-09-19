@@ -158,6 +158,7 @@ class SocketWorker : Thread(), SocketContract {
         writerStream?.println(OUT_RESPONSE_ON_REQUEST_TO_PLAY)
         writerStream?.println(targetClient)
         writerStream?.println(if (isAccept) ACCEPT else DECLINE)
+        //asd
         writerStream?.flush()
     }
 
