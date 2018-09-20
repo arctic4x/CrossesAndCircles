@@ -15,6 +15,7 @@ private const val OUT_EXIT = "EXIT"
 private const val OUT_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val OUT_RESPONSE_ON_REQUEST_TO_PLAY = "RESPONSE_ON_REQUEST_TO_PLAY"
 private const val OUT_READY_TO_PLAY = "READY_TO_PLAY"
+private const val OUT_GET_CLIENTS_LIST = "GET_CLIENTS_LIST"
 
 private const val IN_SEND_LOGIN_RESULT = "SEND_LOGIN_RESULT"
 private const val IN_SEND_LIST_OF_CLIENT = "SEND_LIST_OF_CLIENT"
@@ -27,34 +28,34 @@ class SocketWorker : Thread(), SocketContract {
 
     private var isRunning = false
 
-    private var writerStream: PrintWriter? = null
-    private var readerStream: BufferedReader? = null
+    private lateinit var writerStream: PrintWriter
+    private lateinit var readerStream: BufferedReader
     private var listener: SocketListener? = null
 
     override fun run() {
         try {
-            Log.d("socket", "try to find server")
+            Log.d("socket_worker", "try to find server")
             val address = InetAddress.getByName("192.168.0.112")
 
             try {
-                Log.d("socket", "try to connect")
+                Log.d("socket_worker", "try to connect")
                 val socket = Socket(address, MA_PORT)
                 isRunning = true
 
                 writerStream = PrintWriter(BufferedWriter(OutputStreamWriter(socket.getOutputStream())))
                 readerStream = BufferedReader(InputStreamReader(socket.getInputStream()))
 
-                Log.d("socket", "connected")
+                Log.d("socket_worker", "connected")
 
-                Log.d("socket", "listen to commands...")
+                Log.d("socket_worker", "listen to commands...")
 
                 while (isRunning) {
-                    if (writerStream!!.checkError()) {
+                    if (writerStream.checkError()) {
                         isRunning = false
                     }
-                    val command = readerStream!!.readLine()
+                    val command = readerStream.readLine()
                     if (command != null && command.isNotBlank()) {
-                        Log.d("socket", command)
+                        Log.d("socket_worker", "command: $command")
                         when (command) {
                             IN_SEND_LOGIN_RESULT -> {
                                 in_sendLoginRequest()
@@ -78,9 +79,7 @@ class SocketWorker : Thread(), SocketContract {
                     }
                 }
 
-                Log.d("socket", "disconnected")
-                writerStream = null
-                readerStream = null
+                Log.d("socket_worker", "disconnected")
                 listener = null
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -90,85 +89,106 @@ class SocketWorker : Thread(), SocketContract {
         }
     }
 
-    fun setSocketListener(socketListener: SocketListener?){
+    fun setSocketListener(socketListener: SocketListener?) {
         listener = socketListener
     }
 
-    override fun in_sendLoginRequest() {
-        with(readerStream) {
-            val request = readLine()
-            val login = readLine()
+    private fun in_sendLoginRequest() {
+        //with(readerStream) {
+        Log.d("socket_worker", "in_sendLoginRequest")
+        //Thread {
+            val request = readerStream.readLine()
+            val login = readerStream.readLine()
             if (request == ACCEPT) {
                 listener?.setLogin(login!!)
             } else {
                 listener?.loginAlreadyExist()
             }
-        }
+        //}.start()
+        //}
     }
 
-    override fun in_sendListOfClient() {
-        with(readerStream) {
-            val listOfClients = readLine()
+    private fun in_sendListOfClient() {
+        Log.d("socket_worker", "in_sendListOfClient")
+            val listOfClients = readerStream.readLine()
             val list = listOfClients!!.split(" ")
             listener?.setListOfClients(list)
-        }
     }
 
-    override fun in_sendClientConnected() {
-        with(readerStream) {
-            val connectedClientName = readLine()
+    private fun in_sendClientConnected() {
+            val connectedClientName = readerStream.readLine()
+            Log.d("socket_worker", "in_sendClientConnected: $connectedClientName")
             listener?.addClient(connectedClientName!!)
-        }
     }
 
-    override fun in_sendCleintRemoved() {
-        with(readerStream) {
-            val removedClientName = readLine()!!
+    private fun in_sendCleintRemoved() {
+            val removedClientName = readerStream.readLine()!!
+            Log.d("socket_worker", "in_sendCleintRemoved: $removedClientName")
             listener?.removeClient(removedClientName)
-        }
     }
 
-    override fun in_requestToPlay() {
-        with(readerStream) {
-            val opponentName = readLine()!!
+    private fun in_requestToPlay() {
+            val opponentName = readerStream.readLine()!!
+            Log.d("socket_worker", "in_requestToPlay $opponentName")
             listener?.requestToPlay(opponentName)
-        }
     }
 
-    override fun in_connectPlayerToGame() {
-        with(readerStream) {
+    private fun in_connectPlayerToGame() {
+        Log.d("socket_worker", "in_connectPlayerToGame")
             listener?.letsPlay()
-        }
     }
 
     override fun out_signIn(login: String) {
-        writerStream?.println(OUT_SIGN_IN)
-        writerStream?.println(login)
-        writerStream?.flush()
+        Log.d("socket_worker", "out_signIn")
+        Thread {
+            writerStream?.println(OUT_SIGN_IN)
+            writerStream?.println(login)
+            writerStream?.flush()
+        }.start()
     }
 
     override fun out_exit() {
-        writerStream?.println(OUT_EXIT)
-        writerStream?.flush()
+        Log.d("socket_worker", "out_exit")
+        Thread {
+            writerStream?.println(OUT_EXIT)
+            writerStream?.flush()
+        }.start()
     }
 
     override fun out_requestToPlay(targetClient: String) {
-        writerStream?.println(OUT_REQUEST_TO_PLAY)
-        writerStream?.println(targetClient)
-        writerStream?.flush()
+        Log.d("socket_worker", "out_requestToPlay to $targetClient")
+        Thread {
+            writerStream?.println(OUT_REQUEST_TO_PLAY)
+            writerStream?.println(targetClient)
+            writerStream?.flush()
+        }.start()
     }
 
     override fun out_responseOnRequestToPlay(targetClient: String, isAccept: Boolean) {
-        writerStream?.println(OUT_RESPONSE_ON_REQUEST_TO_PLAY)
-        writerStream?.println(targetClient)
-        writerStream?.println(if (isAccept) ACCEPT else DECLINE)
-        //asd
-        writerStream?.flush()
+        Log.d("socket_worker", "out_responseOnRequestToPlay to $targetClient $isAccept")
+        Thread {
+            writerStream?.println(OUT_RESPONSE_ON_REQUEST_TO_PLAY)
+            writerStream?.println(targetClient)
+            writerStream?.println(if (isAccept) ACCEPT else DECLINE)
+            //asd
+            writerStream?.flush()
+        }.start()
     }
 
     override fun out_readyToPlay() {
-        writerStream?.println(OUT_READY_TO_PLAY)
-        writerStream?.flush()
+        Log.d("socket_worker", "out_readyToPlay")
+        Thread {
+            writerStream?.println(OUT_READY_TO_PLAY)
+            writerStream?.flush()
+        }.start()
+    }
+
+    override fun out_getClientsList() {
+        Log.d("socket_worker", "out_getClientsList")
+        Thread {
+            writerStream?.println(OUT_GET_CLIENTS_LIST)
+            writerStream?.flush()
+        }.start()
     }
 
     interface SocketListener {

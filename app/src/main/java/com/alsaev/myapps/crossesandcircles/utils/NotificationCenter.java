@@ -8,8 +8,12 @@ public class NotificationCenter {
 
     private static int totalEvents = 1;
 
-    public static final int didUpdateTeam = totalEvents++;
-    public static final int didRemovePlayerTeam = totalEvents++;
+    public static final int OpenMenuFragment = totalEvents++;
+    public static final int SetLogin = totalEvents++;
+    public static final int LoginAlreadyExist = totalEvents++;
+    public static final int SetListOfClients = totalEvents++;
+    public static final int AddClient = totalEvents++;
+    public static final int RemoveClient = totalEvents++;
 
     private SparseArray<ArrayList<Object>> observers = new SparseArray<>();
     private SparseArray<ArrayList<Object>> removeAfterBroadcast = new SparseArray<>();

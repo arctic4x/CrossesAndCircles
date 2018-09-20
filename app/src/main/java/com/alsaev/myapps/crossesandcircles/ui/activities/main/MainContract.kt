@@ -1,11 +1,14 @@
 package com.alsaev.myapps.crossesandcircles.ui.activities.main
 
-interface MainContract {
+internal interface MainContract {
     interface Vview {
-
+        fun openRegistrationFragment()
+        fun openMenuFragment()
+        fun setLogin(login: String)
     }
 
     interface Presenter {
         fun init()
+        fun onDestroy()
     }
 }
