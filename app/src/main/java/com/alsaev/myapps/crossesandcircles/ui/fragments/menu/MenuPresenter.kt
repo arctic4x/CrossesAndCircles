@@ -22,12 +22,16 @@ internal class MenuPresenter(val vview: MenuContract.Vview) : MenuContract.Prese
         NotificationCenter.getInstance().addObserver(this, SetListOfClients)
         NotificationCenter.getInstance().addObserver(this, AddClient)
         NotificationCenter.getInstance().addObserver(this, RemoveClient)
+        NotificationCenter.getInstance().addObserver(this, GetRequestToPlay)
+        NotificationCenter.getInstance().addObserver(this, OpponentDeclineRequestToPlay)
     }
 
     private fun unSubscribeNotificationCenter() {
         NotificationCenter.getInstance().removeObserver(this, SetListOfClients)
         NotificationCenter.getInstance().removeObserver(this, RemoveClient)
         NotificationCenter.getInstance().removeObserver(this, AddClient)
+        NotificationCenter.getInstance().removeObserver(this, GetRequestToPlay)
+        NotificationCenter.getInstance().removeObserver(this, OpponentDeclineRequestToPlay)
     }
 
     override fun didReceivedNotification(id: Int, vararg args: Any?) {
@@ -40,6 +44,12 @@ internal class MenuPresenter(val vview: MenuContract.Vview) : MenuContract.Prese
             }
             AddClient -> {
                 vview.addItem(args[0].toString())
+            }
+            GetRequestToPlay -> {
+                vview.showRequestToPlay(args[0].toString())
+            }
+            OpponentDeclineRequestToPlay -> {
+                vview.showDeclineRequestToPlay(args[0].toString())
             }
         }
     }

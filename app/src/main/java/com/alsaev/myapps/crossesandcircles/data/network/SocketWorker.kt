@@ -15,6 +15,7 @@ private const val OUT_EXIT = "EXIT"
 private const val OUT_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val OUT_RESPONSE_ON_REQUEST_TO_PLAY = "RESPONSE_ON_REQUEST_TO_PLAY"
 private const val OUT_READY_TO_PLAY = "READY_TO_PLAY"
+private const val OUT_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 private const val OUT_GET_CLIENTS_LIST = "GET_CLIENTS_LIST"
 
 private const val IN_SEND_LOGIN_RESULT = "SEND_LOGIN_RESULT"
@@ -23,6 +24,7 @@ private const val IN_SEND_CLIENT_CONNECTED = "SEND_CLIENT_CONNECTED"
 private const val IN_SEND_CLIENT_REMOVED = "SEND_CLIENT_REMOVED"
 private const val IN_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val IN_CONNECT_PLAYER_TO_GAME = "CONNECT_PLAYER_TO_GAME"
+private const val IN_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 
 class SocketWorker : Thread(), SocketContract {
 
@@ -75,6 +77,9 @@ class SocketWorker : Thread(), SocketContract {
                             IN_CONNECT_PLAYER_TO_GAME -> {
                                 in_connectPlayerToGame()
                             }
+                            IN_DECLINE_REQUEST_TO_PLAY->{
+                                in_declineRequestToPlay()
+                            }
                         }
                     }
                 }
@@ -97,46 +102,55 @@ class SocketWorker : Thread(), SocketContract {
         //with(readerStream) {
         Log.d("socket_worker", "in_sendLoginRequest")
         //Thread {
-            val request = readerStream.readLine()
-            val login = readerStream.readLine()
-            if (request == ACCEPT) {
-                listener?.setLogin(login!!)
-            } else {
-                listener?.loginAlreadyExist()
-            }
+        val request = readerStream.readLine()
+        val login = readerStream.readLine()
+        if (request == ACCEPT) {
+            listener?.setLogin(login!!)
+        } else {
+            listener?.loginAlreadyExist()
+        }
         //}.start()
         //}
     }
 
     private fun in_sendListOfClient() {
         Log.d("socket_worker", "in_sendListOfClient")
-            val listOfClients = readerStream.readLine()
-            val list = listOfClients!!.split(" ")
-            listener?.setListOfClients(list)
+        val listOfClients = readerStream.readLine()
+        val list = listOfClients!!.trim().replace("  ", " ").split(" ")
+        listener?.setListOfClients(list)
     }
 
     private fun in_sendClientConnected() {
-            val connectedClientName = readerStream.readLine()
-            Log.d("socket_worker", "in_sendClientConnected: $connectedClientName")
-            listener?.addClient(connectedClientName!!)
+        val connectedClientName = readerStream.readLine()
+        Log.d("socket_worker", "in_sendClientConnected: $connectedClientName")
+        listener?.addClient(connectedClientName!!)
     }
 
     private fun in_sendCleintRemoved() {
-            val removedClientName = readerStream.readLine()!!
-            Log.d("socket_worker", "in_sendCleintRemoved: $removedClientName")
-            listener?.removeClient(removedClientName)
+        val removedClientName = readerStream.readLine()!!
+        Log.d("socket_worker", "in_sendCleintRemoved: $removedClientName")
+        listener?.removeClient(removedClientName)
     }
 
     private fun in_requestToPlay() {
-            val opponentName = readerStream.readLine()!!
-            Log.d("socket_worker", "in_requestToPlay $opponentName")
-            listener?.requestToPlay(opponentName)
+        val opponentName = readerStream.readLine()!!
+        Log.d("socket_worker", "in_requestToPlay $opponentName")
+        listener?.getRequestToPlay(opponentName)
     }
 
     private fun in_connectPlayerToGame() {
         Log.d("socket_worker", "in_connectPlayerToGame")
-            listener?.letsPlay()
+        val opponentName = readerStream.readLine()
+        listener?.letsPlay(opponentName)
     }
+
+    private fun in_declineRequestToPlay(){
+        Log.d("socket_worker","in_declineRequestToPlay")
+        val opponentName = readerStream.readLine()
+        listener?.opponentDeclineRequset(opponentName)
+    }
+
+
 
     override fun out_signIn(login: String) {
         Log.d("socket_worker", "out_signIn")
@@ -174,19 +188,30 @@ class SocketWorker : Thread(), SocketContract {
             writerStream?.flush()
         }.start()
     }
-
-    override fun out_readyToPlay() {
-        Log.d("socket_worker", "out_readyToPlay")
-        Thread {
-            writerStream?.println(OUT_READY_TO_PLAY)
-            writerStream?.flush()
-        }.start()
-    }
+//
+//    override fun out_readyToPlay(opponentName: String) {
+//        Log.d("socket_worker", "out_readyToPlay")
+//        Thread {
+//            writerStream?.println(OUT_READY_TO_PLAY)
+//            writerStream?.println(opponentName)
+//            writerStream?.flush()
+//        }.start()
+//    }
 
     override fun out_getClientsList() {
         Log.d("socket_worker", "out_getClientsList")
         Thread {
             writerStream?.println(OUT_GET_CLIENTS_LIST)
+            writerStream?.flush()
+        }.start()
+    }
+
+    override fun out_declineRequestToPlay(opponentName: String) {
+        Log.d("socket_worker", "out_declineRequestToPlay")
+
+        Thread {
+            writerStream?.println(OUT_DECLINE_REQUEST_TO_PLAY)
+            writerStream?.println(opponentName)
             writerStream?.flush()
         }.start()
     }
@@ -197,7 +222,8 @@ class SocketWorker : Thread(), SocketContract {
         fun setListOfClients(list: List<String>)
         fun addClient(connectedClientName: String)
         fun removeClient(removedClientName: String)
-        fun requestToPlay(opponentName: String)
-        fun letsPlay()
+        fun getRequestToPlay(opponentName: String)
+        fun letsPlay(opponentName: String)
+        fun opponentDeclineRequset(opponentName: String)
     }
 }

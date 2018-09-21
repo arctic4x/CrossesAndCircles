@@ -7,6 +7,9 @@ internal interface MenuContract {
         fun setItems(items: ArrayList<String>)
         fun addItem(item: String)
         fun removeItem(item: String)
+        fun showRequestToPlay(opponentName: String)
+        fun showDeclineRequestToPlay(opponentName: String)
+        fun readyToPlay(opponentName: String)
     }
 
     interface Presenter {

@@ -26,9 +26,6 @@ class App : Application(), SocketWorker.SocketListener {
         socketWorker = sw
     }
 
-    fun tryToLogin(login: String) {
-        socketWorker.out_signIn(login)
-    }
 
     override fun setLogin(login: String) {
         NotificationCenter.getInstance().postNotificationName(SetLogin, login)
@@ -50,15 +47,35 @@ class App : Application(), SocketWorker.SocketListener {
         NotificationCenter.getInstance().postNotificationName(RemoveClient, removedClientName)
     }
 
-    override fun requestToPlay(opponentName: String) {
-
+    override fun getRequestToPlay(opponentName: String) {
+        NotificationCenter.getInstance().postNotificationName(GetRequestToPlay, opponentName)
     }
 
-    override fun letsPlay() {
+    override fun opponentDeclineRequset(opponentName: String) {
+        NotificationCenter.getInstance().postNotificationName(OpponentDeclineRequestToPlay, opponentName)
+    }
 
+    override fun letsPlay(opponentName: String) {
+        NotificationCenter.getInstance().postNotificationName(ReadyToPlay, opponentName)
+    }
+
+    fun acceptRequestToPlay(opponentName: String) {
+        socketWorker.out_responseOnRequestToPlay(opponentName, true)
+    }
+
+    fun tryToLogin(login: String) {
+        socketWorker.out_signIn(login)
+    }
+
+    fun sendRequestToPlay(targetName: String) {
+        socketWorker.out_requestToPlay(targetName)
     }
 
     fun getClientsList() {
         socketWorker.out_getClientsList()
+    }
+
+    fun declineRequestToPlay(opponentName: String) {
+        socketWorker.out_responseOnRequestToPlay(opponentName, false)
     }
 }

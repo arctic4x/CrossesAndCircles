@@ -8,12 +8,15 @@ import android.os.Looper
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.alsaev.myapps.crossesandcircles.App
 
 import com.alsaev.myapps.crossesandcircles.R
-import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter
+import com.alsaev.myapps.crossesandcircles.view.DeclineRequestToPlayDialog
+import com.alsaev.myapps.crossesandcircles.view.RequestToPlayDialog
 import kotlinx.android.synthetic.main.client_item.view.*
 import kotlinx.android.synthetic.main.fragment_menu.*
 
@@ -43,10 +46,10 @@ class MenuFragment : Fragment(), MenuContract.Vview {
     }
 
     override fun setItems(items: ArrayList<String>) {
-
-        Handler(Looper.getMainLooper()).post {
-            adapter.setItems(items)
-        }
+        if (items.isNotEmpty())
+            Handler(Looper.getMainLooper()).post {
+                adapter.setItems(items)
+            }
     }
 
     override fun addItem(item: String) {
@@ -64,7 +67,16 @@ class MenuFragment : Fragment(), MenuContract.Vview {
     class ClientsRVAdapter(var clients: ArrayList<String>) : RecyclerView.Adapter<ClientsRVAdapter.ClientHolder>() {
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ClientHolder {
-            return ClientHolder(LayoutInflater.from(p0.context).inflate(R.layout.client_item, p0, false))
+            val view = LayoutInflater.from(p0.context).inflate(R.layout.client_item, p0, false)
+            val holder = ClientHolder(view)
+            view.btn_request_to_play.setOnClickListener {
+                val adapterPostition = holder.adapterPosition
+                if (adapterPostition != RecyclerView.NO_POSITION) {
+                    App.instance.sendRequestToPlay(view.tv_client_name.text.toString())
+                }
+            }
+
+            return holder
         }
 
         fun setItems(clients: ArrayList<String>) {
@@ -128,5 +140,31 @@ class MenuFragment : Fragment(), MenuContract.Vview {
 
     interface FragmentInteraction {
         fun getLogin(): String
+    }
+
+    override fun showRequestToPlay(opponentName: String) {
+        Handler(Looper.getMainLooper()).post {
+            RequestToPlayDialog(context!!).show(opponentName, object : RequestToPlayDialog.DialogClickListener {
+                override fun accept(opponentName: String) {
+                    App.instance.acceptRequestToPlay(opponentName)
+                }
+
+                override fun decline() {
+                    App.instance.declineRequestToPlay(opponentName)
+                }
+            })
+        }
+    }
+
+    override fun showDeclineRequestToPlay(opponentName: String) {
+        Handler(Looper.getMainLooper()).post {
+            DeclineRequestToPlayDialog(context!!).show(opponentName)
+        }
+    }
+
+    override fun readyToPlay(opponentName: String) {
+        Handler(Looper.getMainLooper()).post {
+            Log.d("READY TO PLAY", "WITH $opponentName")
+        }
     }
 }

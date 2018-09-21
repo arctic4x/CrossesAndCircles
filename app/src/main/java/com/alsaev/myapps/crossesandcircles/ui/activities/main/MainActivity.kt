@@ -18,21 +18,21 @@ class MainActivity : AppCompatActivity(), MainContract.Vview,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        presenter = MainPresenter(this)
+        //presenter = MainPresenter(this)
     }
 
     override fun onStart() {
         super.onStart()
 
-        presenter.init()
+        //presenter.init()
     }
 
     override fun openRegistrationFragment() {
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, RegistrationFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, RegistrationFragment()).addToBackStack(null).commit()
     }
 
     override fun openMenuFragment() {
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, MenuFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, MenuFragment()).addToBackStack(null).commit()
     }
 
     override fun setLogin(login: String) {
@@ -41,5 +41,9 @@ class MainActivity : AppCompatActivity(), MainContract.Vview,
 
     override fun getLogin(): String {
         return login
+    }
+
+    override fun openGameFragment(opponent: String) {
+
     }
 }

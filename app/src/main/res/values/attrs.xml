@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GameFieldView">
+        <attr name="gfv_gamefieldColor" format="color"/>
+        <attr name="gfv_crossColor" format="color"/>
+        <attr name="gfv_circleColor" format="color"/>
+    </declare-styleable>
+</resources>

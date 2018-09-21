@@ -8,6 +8,12 @@
     android:background="@android:color/white"
     tools:context=".ui.activities.main.MainActivity">
 
-
+    <com.alsaev.myapps.crossesandcircles.view.GameFieldView
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        app:gfv_circleColor="@color/colorPrimary"
+        app:gfv_gamefieldColor="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </FrameLayout>

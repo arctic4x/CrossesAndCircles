@@ -5,6 +5,7 @@ internal interface MainContract {
         fun openRegistrationFragment()
         fun openMenuFragment()
         fun setLogin(login: String)
+        fun openGameFragment(opponent: String)
     }
 
     interface Presenter {
