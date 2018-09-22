@@ -13,8 +13,9 @@ import android.view.View
 import com.alsaev.myapps.crossesandcircles.R
 
 class GameFieldView : View {
-    private val CIRCLE = 1
-    private val CROSS = 2
+    private val EMPTY = 0
+    val CROSS = 1
+    val CIRCLE = 2
 
     private val DEFAULT_GAME_FIELD_COLOR = Color.BLACK
     private val DEFAULT_CROSS_COLOR = Color.BLACK
@@ -30,10 +31,14 @@ class GameFieldView : View {
 
     private var gameFieldAnimation = ValueAnimator()
     private var gameFieldProgress = 0f
-    private var figuresProgress = ArrayList<Figure>()
+    private var figures = ArrayList<Figure>()
+
+    private var fieldSpans = arrayOf(EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY)
 
     private var size = 0f
     private var spanSize = 0f
+
+    var finishListener: FinishListener? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -113,24 +118,58 @@ class GameFieldView : View {
                 val pos = xCount + yCount * 3
                 var isExist = false
 
-                figuresProgress.forEach {
+                figures.forEach {
                     if (it.position == pos) {
-                        isExist = false
+                        isExist = true
                         return@forEach
                     }
                 }
 
                 if (!isExist) {
-                    if (figuresProgress.isEmpty()) {
-                        figuresProgress.add(CrossFigure(pos))
+                    if (figures.isEmpty()) {
+                        setFigureInSpan(CROSS, pos)
                     } else
-                        figuresProgress.add(if (figuresProgress.last() is CircleFigure) CrossFigure(pos) else CircleFigure(pos))
-
-                    figuresProgress.last().start()
+                        setFigureInSpan(if (figures.last() is CircleFigure) CROSS else CIRCLE,pos)
                 }
             }
             return@setOnTouchListener true
         }
+    }
+
+    fun setFigureInSpan(figure: Int, position: Int) {
+        figures.add(if (figure == CROSS) CrossFigure(position) else CircleFigure(position))
+        figures.last().start()
+        fieldSpans[position] = figure
+
+        checkOnWin()
+    }
+
+    private fun checkOnWin() {
+        for (i in 0 until 3) {
+            val j = i * 3
+            if (fieldSpans[j] != EMPTY && fieldSpans[j] == fieldSpans[j + 1] && fieldSpans[j] == fieldSpans[j + 2]) {
+                finish(fieldSpans[j])
+                return
+            }
+            if (fieldSpans[i] != EMPTY && fieldSpans[i] == fieldSpans[i * 2] && fieldSpans[i] == fieldSpans[i * 3]) {
+                finish(fieldSpans[i])
+                return
+            }
+        }
+        if (fieldSpans[0] != EMPTY && fieldSpans[0] == fieldSpans[4] && fieldSpans[0] == fieldSpans[8]) {
+            finish(fieldSpans[0])
+            return
+        }
+        if (fieldSpans[2] != EMPTY && fieldSpans[2] == fieldSpans[4] && fieldSpans[2] == fieldSpans[6]) {
+            finish(fieldSpans[2])
+            return
+        }
+    }
+
+    private fun finish(figure: Int) {
+        Log.d("WIN", if (figure == CROSS) "CROSS" else "CIRCLE")
+        setOnClickListener(null)
+        finishListener?.onFinish(fieldSpans[figure])
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -140,7 +179,7 @@ class GameFieldView : View {
     }
 
     private fun drawFigures(canvas: Canvas) {
-        figuresProgress.forEach {
+        figures.forEach {
             it.drawSelf(canvas)
         }
     }
@@ -218,17 +257,20 @@ class GameFieldView : View {
         private val length = x2 - x1
 
         override fun drawSelf(canvas: Canvas) {
-            Log.d("progress", progress.toString())
             val len1 = if (progress < 50) length * (progress / 50) else length
             canvas.drawLine(x1, y1, x1 + len1, y1 + len1, crossPaint)
 
-            val len2 = if (progress < 100) if (progress < 50) 0f else length * (progress / 50) else length
-            canvas.drawLine(x2, y1, x2 -len2, y1 + len2, crossPaint)
+            val len2 = if (progress < 50) 0f else length * ((progress - 50) / 50)
+            canvas.drawLine(x2, y1, x2 - len2, y1 + len2, crossPaint)
         }
 
         override fun start() {
             animator.setFloatValues(0f, 100f)
             animator.start()
         }
+    }
+
+    interface FinishListener {
+        fun onFinish(winFigure: Int)
     }
 }
