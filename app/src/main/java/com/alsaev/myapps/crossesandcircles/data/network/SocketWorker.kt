@@ -14,7 +14,6 @@ private const val OUT_SIGN_IN = "SIGN_IN"
 private const val OUT_EXIT = "EXIT"
 private const val OUT_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val OUT_RESPONSE_ON_REQUEST_TO_PLAY = "RESPONSE_ON_REQUEST_TO_PLAY"
-private const val OUT_READY_TO_PLAY = "READY_TO_PLAY"
 private const val OUT_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 private const val OUT_GET_CLIENTS_LIST = "GET_CLIENTS_LIST"
 
@@ -25,6 +24,7 @@ private const val IN_SEND_CLIENT_REMOVED = "SEND_CLIENT_REMOVED"
 private const val IN_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val IN_CONNECT_PLAYER_TO_GAME = "CONNECT_PLAYER_TO_GAME"
 private const val IN_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
+private const val IN_YOUR_TURN = "YOUR_TURN"
 
 class SocketWorker : Thread(), SocketContract {
 
@@ -80,6 +80,9 @@ class SocketWorker : Thread(), SocketContract {
                             IN_DECLINE_REQUEST_TO_PLAY->{
                                 in_declineRequestToPlay()
                             }
+                            IN_YOUR_TURN->{
+                                in_yourTurn()
+                            }
                         }
                     }
                 }
@@ -92,6 +95,10 @@ class SocketWorker : Thread(), SocketContract {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun in_yourTurn() {
+
     }
 
     fun setSocketListener(socketListener: SocketListener?) {

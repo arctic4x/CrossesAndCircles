@@ -1,5 +1,6 @@
 package com.alsaev.myapps.crossesandcircles.view
 
+import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
@@ -37,6 +38,8 @@ class GameFieldView : View {
 
     private var size = 0f
     private var spanSize = 0f
+    private var canTouch = true
+    private var isFinished = false
 
     var finishListener: FinishListener? = null
 
@@ -100,7 +103,7 @@ class GameFieldView : View {
 
         gameFieldAnimation.start()
         setOnTouchListener { view, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+            if (motionEvent.action == MotionEvent.ACTION_DOWN && canTouch) {
                 var xCount = 0
                 if (motionEvent.x < spanSize)
                     xCount = 0
@@ -129,7 +132,7 @@ class GameFieldView : View {
                     if (figures.isEmpty()) {
                         setFigureInSpan(CROSS, pos)
                     } else
-                        setFigureInSpan(if (figures.last() is CircleFigure) CROSS else CIRCLE,pos)
+                        setFigureInSpan(if (figures.last() is CircleFigure) CROSS else CIRCLE, pos)
                 }
             }
             return@setOnTouchListener true
@@ -137,6 +140,7 @@ class GameFieldView : View {
     }
 
     fun setFigureInSpan(figure: Int, position: Int) {
+        canTouch = false
         figures.add(if (figure == CROSS) CrossFigure(position) else CircleFigure(position))
         figures.last().start()
         fieldSpans[position] = figure
@@ -151,7 +155,7 @@ class GameFieldView : View {
                 finish(fieldSpans[j])
                 return
             }
-            if (fieldSpans[i] != EMPTY && fieldSpans[i] == fieldSpans[i * 2] && fieldSpans[i] == fieldSpans[i * 3]) {
+            if (fieldSpans[i] != EMPTY && fieldSpans[i] == fieldSpans[i + 3] && fieldSpans[i] == fieldSpans[i + 6]) {
                 finish(fieldSpans[i])
                 return
             }
@@ -168,7 +172,7 @@ class GameFieldView : View {
 
     private fun finish(figure: Int) {
         Log.d("WIN", if (figure == CROSS) "CROSS" else "CIRCLE")
-        setOnClickListener(null)
+        isFinished = true
         finishListener?.onFinish(fieldSpans[figure])
     }
 
@@ -212,7 +216,7 @@ class GameFieldView : View {
     }
 
     abstract inner class Figure(pos: Int) {
-        private var padding = spanSize / 10
+        private var padding = spanSize / 5
 
         protected var animator = ValueAnimator()
         protected var progress = 0f
@@ -230,6 +234,20 @@ class GameFieldView : View {
                 progress = it.animatedValue as Float
                 invalidate()
             }
+            animator.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(p0: Animator?) {
+                }
+
+                override fun onAnimationEnd(p0: Animator?) {
+                    if (!isFinished) canTouch = true
+                }
+
+                override fun onAnimationCancel(p0: Animator?) {
+                }
+
+                override fun onAnimationStart(p0: Animator?) {
+                }
+            })
             x1 = (position % 3) * spanSize + padding
             x2 = (position % 3 + 1) * spanSize - padding
             y1 = (position / 3) * spanSize + padding
