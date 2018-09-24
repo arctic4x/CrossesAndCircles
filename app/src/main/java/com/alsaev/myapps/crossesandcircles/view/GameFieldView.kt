@@ -3,10 +3,7 @@ package com.alsaev.myapps.crossesandcircles.view
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -32,12 +29,14 @@ class GameFieldView : View {
 
     private var gameFieldAnimation = ValueAnimator()
     private var gameFieldProgress = 0f
+    private var winLineProgress = 0f
     private var figures = ArrayList<Figure>()
 
     private var fieldSpans = arrayOf(EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY)
 
     private var size = 0f
     private var spanSize = 0f
+    private var winLinePoint = Pair(0, 0)
     private var canTouch = true
     private var isFinished = false
 
@@ -153,19 +152,23 @@ class GameFieldView : View {
             val j = i * 3
             if (fieldSpans[j] != EMPTY && fieldSpans[j] == fieldSpans[j + 1] && fieldSpans[j] == fieldSpans[j + 2]) {
                 finish(fieldSpans[j])
+                drawWinLine(j, j+2)
                 return
             }
             if (fieldSpans[i] != EMPTY && fieldSpans[i] == fieldSpans[i + 3] && fieldSpans[i] == fieldSpans[i + 6]) {
                 finish(fieldSpans[i])
+                drawWinLine(i, i+6)
                 return
             }
         }
         if (fieldSpans[0] != EMPTY && fieldSpans[0] == fieldSpans[4] && fieldSpans[0] == fieldSpans[8]) {
             finish(fieldSpans[0])
+            drawWinLine(0, 8)
             return
         }
         if (fieldSpans[2] != EMPTY && fieldSpans[2] == fieldSpans[4] && fieldSpans[2] == fieldSpans[6]) {
             finish(fieldSpans[2])
+            drawWinLine(2, 6)
             return
         }
     }
@@ -191,6 +194,34 @@ class GameFieldView : View {
     private fun drawGameField(canvas: Canvas) {
         drawVerticalLines(canvas)
         drawHorizontalLines(canvas)
+//        if (isFinished)
+        drawWinLine(canvas)
+    }
+
+    private fun drawWinLine(canvas: Canvas) {
+        if (!(winLinePoint.first==0 && winLinePoint.second==0)) {
+            val x1 = (winLinePoint.first % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else -size / 12
+            val y1 = (winLinePoint.first / 3) * size / 3 + size / 6 + if (winLinePoint.first / 3 == winLinePoint.second / 3) 0f else -size / 12
+            val x2 = (winLinePoint.second % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else +size / 12
+            val y2 = (winLinePoint.second / 3) * size / 3 + size / 6 + if (winLinePoint.first / 3 == winLinePoint.second / 3) 0f else +size / 12
+
+            val dx = x2 - x1
+            val dy = y2 - y1
+
+            canvas.drawLine(x1, y1, x1+Math.abs(dx) * (winLineProgress / 100), y1+Math.abs(dy) * (winLineProgress / 100), gameFieldPaint)
+        }
+    }
+
+    fun drawWinLine(pos1: Int, pos2: Int) {
+        winLinePoint = Pair(pos1, pos2)
+        val winLineAnimator = ValueAnimator()
+        winLineAnimator.setFloatValues(0f, 100f)
+        winLineAnimator.duration = 1000
+        winLineAnimator.addUpdateListener {
+            winLineProgress = it.animatedValue as Float
+            invalidate()
+        }
+        winLineAnimator.start()
     }
 
     private fun drawHorizontalLines(canvas: Canvas) {

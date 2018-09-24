@@ -4,5 +4,9 @@
     <color name="colorPrimaryDark">#5870cb</color>
     <color name="colorAccent">#c0cfff</color>
 
+    <color name="colorqwe">#85a1b8ff</color>
+    <color name="colorCross">#8591ff82</color>
+    <color name="colorCircle">#85ff8e96</color>
+
     <color name="colorTextView">#333333</color>
 </resources>
