@@ -17,6 +17,8 @@ public class NotificationCenter {
     public static final int GetRequestToPlay = totalEvents++;
     public static final int OpponentDeclineRequestToPlay = totalEvents++;
     public static final int ReadyToPlay = totalEvents++;
+    public static final int MyTurn = totalEvents++;
+    public static final int GetAction = totalEvents++;
 
     private SparseArray<ArrayList<Object>> observers = new SparseArray<>();
     private SparseArray<ArrayList<Object>> removeAfterBroadcast = new SparseArray<>();

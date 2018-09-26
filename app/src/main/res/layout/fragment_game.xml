@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.fragments.game.GameFragment">
+
+    <TextView
+        android:id="@+id/tv_your_name"
+        android:layout_width="wrap_content"
+        android:textColor="@color/colorPrimary"
+        tools:text="asdasdkjsadflkj"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_height="wrap_content" />
+
+
+    <com.alsaev.myapps.crossesandcircles.view.GameFieldView
+        android:id="@+id/game_field"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        app:gfv_circleColor="@color/colorCircle"
+        app:gfv_crossColor="@color/colorCross"
+        app:gfv_gamefieldColor="@color/colorqwe" />
+
+</FrameLayout>

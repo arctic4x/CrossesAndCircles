@@ -59,6 +59,14 @@ class App : Application(), SocketWorker.SocketListener {
         NotificationCenter.getInstance().postNotificationName(ReadyToPlay, opponentName)
     }
 
+    override fun myTurn() {
+        NotificationCenter.getInstance().postNotificationName(MyTurn)
+    }
+
+    override fun getAction(figure: Int, position: Int) {
+        NotificationCenter.getInstance().postNotificationName(GetAction, figure, position)
+    }
+
     fun acceptRequestToPlay(opponentName: String) {
         socketWorker.out_responseOnRequestToPlay(opponentName, true)
     }
@@ -77,5 +85,13 @@ class App : Application(), SocketWorker.SocketListener {
 
     fun declineRequestToPlay(opponentName: String) {
         socketWorker.out_responseOnRequestToPlay(opponentName, false)
+    }
+
+    fun imReady(){
+        socketWorker.out_imReady()
+    }
+
+    fun sendAction(pos: Int){
+        socketWorker.out_action(pos)
     }
 }

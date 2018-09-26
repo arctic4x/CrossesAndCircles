@@ -3,6 +3,7 @@ package com.alsaev.myapps.crossesandcircles.ui.activities.main
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.alsaev.myapps.crossesandcircles.R
+import com.alsaev.myapps.crossesandcircles.ui.fragments.game.GameFragment
 import com.alsaev.myapps.crossesandcircles.ui.fragments.menu.MenuFragment
 import com.alsaev.myapps.crossesandcircles.ui.fragments.registration.RegistrationFragment
 import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter.*
@@ -10,7 +11,7 @@ import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter
 
 class MainActivity : AppCompatActivity(), MainContract.Vview,
         RegistrationFragment.FragmentInteraction,
-        MenuFragment.FragmentInteraction {
+        MenuFragment.FragmentInteraction, GameFragment.FragmentInteraction {
 
     private lateinit var presenter: MainContract.Presenter
     private var login = ""
@@ -18,13 +19,13 @@ class MainActivity : AppCompatActivity(), MainContract.Vview,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //presenter = MainPresenter(this)
+        presenter = MainPresenter(this)
     }
 
     override fun onStart() {
         super.onStart()
 
-        //presenter.init()
+        presenter.init()
     }
 
     override fun openRegistrationFragment() {
@@ -44,6 +45,6 @@ class MainActivity : AppCompatActivity(), MainContract.Vview,
     }
 
     override fun openGameFragment(opponent: String) {
-
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, GameFragment()).addToBackStack(null).commit()
     }
 }

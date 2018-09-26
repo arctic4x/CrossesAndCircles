@@ -37,10 +37,11 @@ class GameFieldView : View {
     private var size = 0f
     private var spanSize = 0f
     private var winLinePoint = Pair(0, 0)
-    private var canTouch = true
     private var isFinished = false
 
-    var finishListener: FinishListener? = null
+    var canTouch = false
+
+    var fieldInteraction: FieldInteraction? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -102,6 +103,7 @@ class GameFieldView : View {
 
         gameFieldAnimation.start()
         setOnTouchListener { view, motionEvent ->
+            Log.d("MAKE_ACTION","click")
             if (motionEvent.action == MotionEvent.ACTION_DOWN && canTouch) {
                 var xCount = 0
                 if (motionEvent.x < spanSize)
@@ -128,10 +130,14 @@ class GameFieldView : View {
                 }
 
                 if (!isExist) {
+                    Log.d("MAKE_ACTION", pos.toString())
+                    fieldInteraction?.makeAction(pos)
+                    canTouch = false
+                    /*
                     if (figures.isEmpty()) {
                         setFigureInSpan(CROSS, pos)
                     } else
-                        setFigureInSpan(if (figures.last() is CircleFigure) CROSS else CIRCLE, pos)
+                        setFigureInSpan(if (figures.last() is CircleFigure) CROSS else CIRCLE, pos)*/
                 }
             }
             return@setOnTouchListener true
@@ -144,7 +150,7 @@ class GameFieldView : View {
         figures.last().start()
         fieldSpans[position] = figure
 
-        checkOnWin()
+        //checkOnWin()
     }
 
     private fun checkOnWin() {
@@ -152,12 +158,12 @@ class GameFieldView : View {
             val j = i * 3
             if (fieldSpans[j] != EMPTY && fieldSpans[j] == fieldSpans[j + 1] && fieldSpans[j] == fieldSpans[j + 2]) {
                 finish(fieldSpans[j])
-                drawWinLine(j, j+2)
+                drawWinLine(j, j + 2)
                 return
             }
             if (fieldSpans[i] != EMPTY && fieldSpans[i] == fieldSpans[i + 3] && fieldSpans[i] == fieldSpans[i + 6]) {
                 finish(fieldSpans[i])
-                drawWinLine(i, i+6)
+                drawWinLine(i, i + 6)
                 return
             }
         }
@@ -176,7 +182,7 @@ class GameFieldView : View {
     private fun finish(figure: Int) {
         Log.d("WIN", if (figure == CROSS) "CROSS" else "CIRCLE")
         isFinished = true
-        finishListener?.onFinish(fieldSpans[figure])
+        fieldInteraction?.onFinish(fieldSpans[figure])
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -199,7 +205,7 @@ class GameFieldView : View {
     }
 
     private fun drawWinLine(canvas: Canvas) {
-        if (!(winLinePoint.first==0 && winLinePoint.second==0)) {
+        if (!(winLinePoint.first == 0 && winLinePoint.second == 0)) {
             val x1 = (winLinePoint.first % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else -size / 12
             val y1 = (winLinePoint.first / 3) * size / 3 + size / 6 + if (winLinePoint.first / 3 == winLinePoint.second / 3) 0f else -size / 12
             val x2 = (winLinePoint.second % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else +size / 12
@@ -208,7 +214,7 @@ class GameFieldView : View {
             val dx = x2 - x1
             val dy = y2 - y1
 
-            canvas.drawLine(x1, y1, x1+Math.abs(dx) * (winLineProgress / 100), y1+Math.abs(dy) * (winLineProgress / 100), gameFieldPaint)
+            canvas.drawLine(x1, y1, x1 + Math.abs(dx) * (winLineProgress / 100), y1 + Math.abs(dy) * (winLineProgress / 100), gameFieldPaint)
         }
     }
 
@@ -319,7 +325,8 @@ class GameFieldView : View {
         }
     }
 
-    interface FinishListener {
+    interface FieldInteraction {
         fun onFinish(winFigure: Int)
+        fun makeAction(position: Int)
     }
 }

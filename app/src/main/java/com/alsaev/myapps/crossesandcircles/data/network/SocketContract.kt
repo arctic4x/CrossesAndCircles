@@ -7,4 +7,6 @@ interface SocketContract {
     fun out_responseOnRequestToPlay(targetClient: String,isAccept: Boolean)
     fun out_getClientsList()
     fun out_declineRequestToPlay(opponentName: String)
+    fun out_imReady()
+    fun out_action(position: Int)
 }

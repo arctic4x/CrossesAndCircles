@@ -16,6 +16,8 @@ private const val OUT_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val OUT_RESPONSE_ON_REQUEST_TO_PLAY = "RESPONSE_ON_REQUEST_TO_PLAY"
 private const val OUT_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 private const val OUT_GET_CLIENTS_LIST = "GET_CLIENTS_LIST"
+private const val OUT_IM_READY = "IM_READY"
+private const val OUT_ACTION = "ACTION"
 
 private const val IN_SEND_LOGIN_RESULT = "SEND_LOGIN_RESULT"
 private const val IN_SEND_LIST_OF_CLIENT = "SEND_LIST_OF_CLIENT"
@@ -25,6 +27,7 @@ private const val IN_REQUEST_TO_PLAY = "REQUEST_TO_PLAY"
 private const val IN_CONNECT_PLAYER_TO_GAME = "CONNECT_PLAYER_TO_GAME"
 private const val IN_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 private const val IN_YOUR_TURN = "YOUR_TURN"
+private const val IN_SEND_ACTION = "SEND_ACTION"
 
 class SocketWorker : Thread(), SocketContract {
 
@@ -77,11 +80,14 @@ class SocketWorker : Thread(), SocketContract {
                             IN_CONNECT_PLAYER_TO_GAME -> {
                                 in_connectPlayerToGame()
                             }
-                            IN_DECLINE_REQUEST_TO_PLAY->{
+                            IN_DECLINE_REQUEST_TO_PLAY -> {
                                 in_declineRequestToPlay()
                             }
-                            IN_YOUR_TURN->{
+                            IN_YOUR_TURN -> {
                                 in_yourTurn()
+                            }
+                            IN_SEND_ACTION -> {
+                                in_sendAction()
                             }
                         }
                     }
@@ -97,8 +103,21 @@ class SocketWorker : Thread(), SocketContract {
         }
     }
 
-    private fun in_yourTurn() {
+    private fun in_sendAction() {
+        Log.d("socket_worker", "in_sendAction")
+        try {
+            val figure = Integer.parseInt(readerStream.readLine())
+            val position = Integer.parseInt(readerStream.readLine())
 
+            listener?.getAction(figure, position)
+        } catch (e: NumberFormatException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun in_yourTurn() {
+        Log.d("socket_worker", "in_yourTurn")
+        listener?.myTurn()
     }
 
     fun setSocketListener(socketListener: SocketListener?) {
@@ -151,12 +170,11 @@ class SocketWorker : Thread(), SocketContract {
         listener?.letsPlay(opponentName)
     }
 
-    private fun in_declineRequestToPlay(){
-        Log.d("socket_worker","in_declineRequestToPlay")
+    private fun in_declineRequestToPlay() {
+        Log.d("socket_worker", "in_declineRequestToPlay")
         val opponentName = readerStream.readLine()
         listener?.opponentDeclineRequset(opponentName)
     }
-
 
 
     override fun out_signIn(login: String) {
@@ -223,6 +241,25 @@ class SocketWorker : Thread(), SocketContract {
         }.start()
     }
 
+    override fun out_imReady() {
+        Log.d("socket_worker", "out_imReady")
+
+        Thread {
+            writerStream.println(OUT_IM_READY)
+            writerStream.flush()
+        }.start()
+    }
+
+    override fun out_action(position: Int) {
+        Log.d("socket_worker", "out_action")
+
+        Thread {
+            writerStream.println(OUT_ACTION)
+            writerStream.println(position)
+            writerStream.flush()
+        }.start()
+    }
+
     interface SocketListener {
         fun setLogin(login: String)
         fun loginAlreadyExist()
@@ -232,5 +269,7 @@ class SocketWorker : Thread(), SocketContract {
         fun getRequestToPlay(opponentName: String)
         fun letsPlay(opponentName: String)
         fun opponentDeclineRequset(opponentName: String)
+        fun myTurn()
+        fun getAction(figure: Int, position: Int)
     }
 }
