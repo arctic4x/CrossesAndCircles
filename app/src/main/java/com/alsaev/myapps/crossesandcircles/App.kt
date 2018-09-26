@@ -1,6 +1,7 @@
 package com.alsaev.myapps.crossesandcircles
 
 import android.app.Application
+import android.util.Log
 import com.alsaev.myapps.crossesandcircles.data.network.SocketContract
 import com.alsaev.myapps.crossesandcircles.data.network.SocketWorker
 import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter
@@ -67,6 +68,10 @@ class App : Application(), SocketWorker.SocketListener {
         NotificationCenter.getInstance().postNotificationName(GetAction, figure, position)
     }
 
+    override fun endOfGame(isWin: Boolean, index1: Int, index2: Int) {
+        NotificationCenter.getInstance().postNotificationName(EndOfGame, isWin, index1, index2)
+    }
+
     fun acceptRequestToPlay(opponentName: String) {
         socketWorker.out_responseOnRequestToPlay(opponentName, true)
     }
@@ -87,11 +92,11 @@ class App : Application(), SocketWorker.SocketListener {
         socketWorker.out_responseOnRequestToPlay(opponentName, false)
     }
 
-    fun imReady(){
+    fun imReady() {
         socketWorker.out_imReady()
     }
 
-    fun sendAction(pos: Int){
+    fun sendAction(pos: Int) {
         socketWorker.out_action(pos)
     }
 }

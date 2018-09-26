@@ -16,9 +16,17 @@ class GamePresenter(val vview: GameContract.Vview) : GameContract.Presenter, Not
                 myTurn()
             }
             GetAction -> {
-                getAction(args[0] as Int,args[1] as Int)
+                getAction(args[0] as Int, args[1] as Int)
+            }
+            EndOfGame -> {
+                endOfGame(args[0] as Boolean, args[1] as Int, args[2] as Int)
             }
         }
+    }
+
+    private fun endOfGame(isWin: Boolean, i1: Int, i2: Int) {
+        if (isWin) vview.winGame(i1, i2)
+        else vview.loseGame(i1, i2)
     }
 
     private fun getAction(figure: Int, position: Int) {
@@ -35,13 +43,15 @@ class GamePresenter(val vview: GameContract.Vview) : GameContract.Presenter, Not
     }
 
     private fun unSubscribeNotificationCenter() {
-        NotificationCenter.getInstance().addObserver(this, MyTurn)
-        NotificationCenter.getInstance().addObserver(this, GetAction)
+        NotificationCenter.getInstance().removeObserver(this, MyTurn)
+        NotificationCenter.getInstance().removeObserver(this, GetAction)
+        NotificationCenter.getInstance().removeObserver(this, EndOfGame)
     }
 
     private fun subscribeNotificationCenter() {
-        NotificationCenter.getInstance().removeObserver(this, MyTurn)
-        NotificationCenter.getInstance().removeObserver(this, GetAction)
+        NotificationCenter.getInstance().addObserver(this, MyTurn)
+        NotificationCenter.getInstance().addObserver(this, GetAction)
+        NotificationCenter.getInstance().addObserver(this, EndOfGame)
     }
 
     override fun makeAction(position: Int) {

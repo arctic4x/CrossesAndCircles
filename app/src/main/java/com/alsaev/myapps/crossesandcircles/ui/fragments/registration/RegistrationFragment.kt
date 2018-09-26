@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 
 import com.alsaev.myapps.crossesandcircles.R
 import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter
@@ -53,6 +54,13 @@ class RegistrationFragment : Fragment(), RegistrationContract.Vview {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
         })
+
+        et_login.setOnEditorActionListener { textView, i, keyEvent ->
+            if (i == EditorInfo.IME_ACTION_DONE) {
+                presenter.btnLoginClick()
+            }
+            return@setOnEditorActionListener true
+        }
 
         btn_login.setOnClickListener {
             presenter.btnLoginClick()

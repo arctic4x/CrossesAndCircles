@@ -27,8 +27,11 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:lines="1"
+            android:inputType="text"
+            android:maxLines="1"
             android:maxLength="20"
             android:hint="name"
+            android:imeOptions="actionDone"
             android:textSize="20sp" />
     </android.support.design.widget.TextInputLayout>
 

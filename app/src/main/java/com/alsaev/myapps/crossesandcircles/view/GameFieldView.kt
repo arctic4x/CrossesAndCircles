@@ -103,7 +103,6 @@ class GameFieldView : View {
 
         gameFieldAnimation.start()
         setOnTouchListener { view, motionEvent ->
-            Log.d("MAKE_ACTION","click")
             if (motionEvent.action == MotionEvent.ACTION_DOWN && canTouch) {
                 var xCount = 0
                 if (motionEvent.x < spanSize)
@@ -130,7 +129,6 @@ class GameFieldView : View {
                 }
 
                 if (!isExist) {
-                    Log.d("MAKE_ACTION", pos.toString())
                     fieldInteraction?.makeAction(pos)
                     canTouch = false
                     /*
@@ -145,7 +143,6 @@ class GameFieldView : View {
     }
 
     fun setFigureInSpan(figure: Int, position: Int) {
-        canTouch = false
         figures.add(if (figure == CROSS) CrossFigure(position) else CircleFigure(position))
         figures.last().start()
         fieldSpans[position] = figure
@@ -206,16 +203,25 @@ class GameFieldView : View {
 
     private fun drawWinLine(canvas: Canvas) {
         if (!(winLinePoint.first == 0 && winLinePoint.second == 0)) {
-            val x1 = (winLinePoint.first % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else -size / 12
-            val y1 = (winLinePoint.first / 3) * size / 3 + size / 6 + if (winLinePoint.first / 3 == winLinePoint.second / 3) 0f else -size / 12
-            val x2 = (winLinePoint.second % 3) * size / 3 + size / 6 + if (winLinePoint.first % 3 == winLinePoint.second % 3) 0f else +size / 12
-            val y2 = (winLinePoint.second / 3) * size / 3 + size / 6 + if (winLinePoint.first / 3 == winLinePoint.second / 3) 0f else +size / 12
+
+            val x1 = (winLinePoint.first % 3) * size / 3 + size / 6 + sign(winLinePoint.first % 3 - winLinePoint.second % 3) * size / 12
+            val y1 = (winLinePoint.first / 3) * size / 3 + size / 6 + sign(winLinePoint.first / 3 - winLinePoint.second / 3) * size / 12
+            val x2 = (winLinePoint.second % 3) * size / 3 + size / 6 - sign(winLinePoint.first % 3 - winLinePoint.second % 3) * size / 12
+            val y2 = (winLinePoint.second / 3) * size / 3 + size / 6 - sign(winLinePoint.first / 3 - winLinePoint.second / 3) * size / 12
 
             val dx = x2 - x1
             val dy = y2 - y1
 
-            canvas.drawLine(x1, y1, x1 + Math.abs(dx) * (winLineProgress / 100), y1 + Math.abs(dy) * (winLineProgress / 100), gameFieldPaint)
+            canvas.drawLine(x1, y1, x1 + (dx) * (winLineProgress / 100), y1 + Math.abs(dy) * (winLineProgress / 100), gameFieldPaint)
         }
+    }
+
+    private fun sign(v: Int): Int {
+        if (v > 0)
+            return 1
+        else if (v < 0)
+            return -1
+        else return 0
     }
 
     fun drawWinLine(pos1: Int, pos2: Int) {
@@ -271,7 +277,7 @@ class GameFieldView : View {
                 progress = it.animatedValue as Float
                 invalidate()
             }
-            animator.addListener(object : Animator.AnimatorListener {
+            /*animator.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(p0: Animator?) {
                 }
 
@@ -284,7 +290,7 @@ class GameFieldView : View {
 
                 override fun onAnimationStart(p0: Animator?) {
                 }
-            })
+            })*/
             x1 = (position % 3) * spanSize + padding
             x2 = (position % 3 + 1) * spanSize - padding
             y1 = (position / 3) * spanSize + padding

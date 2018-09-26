@@ -3,11 +3,14 @@ package com.alsaev.myapps.crossesandcircles.ui.fragments.game
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.alsaev.myapps.crossesandcircles.App
 
 import com.alsaev.myapps.crossesandcircles.R
@@ -20,6 +23,13 @@ class GameFragment : Fragment(), GameContract.Vview {
     private lateinit var presenter: GameContract.Presenter
 
     private var fragmentInteraction: FragmentInteraction? = null
+    private var opponent = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        opponent = arguments!!.getString("opponent", "")
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -34,6 +44,7 @@ class GameFragment : Fragment(), GameContract.Vview {
         presenter.init()
 
         tv_your_name.text = fragmentInteraction?.getLogin()
+        tv_opponent_name.text = opponent
 
         game_field.fieldInteraction = object : GameFieldView.FieldInteraction {
             override fun onFinish(winFigure: Int) {
@@ -54,12 +65,14 @@ class GameFragment : Fragment(), GameContract.Vview {
     }
 
     override fun myTurn() {
-        Log.d("turn","my")
+        Log.d("turn", "my")
         game_field.canTouch = true
     }
 
     override fun getAction(figure: Int, position: Int) {
-        game_field.setFigureInSpan(figure, position)
+        Handler(Looper.getMainLooper()).post {
+            game_field.setFigureInSpan(figure, position)
+        }
     }
 
     override fun onAttach(context: Context?) {
@@ -72,7 +85,32 @@ class GameFragment : Fragment(), GameContract.Vview {
         super.onDetach()
     }
 
-    interface FragmentInteraction{
-        fun getLogin():String
+    interface FragmentInteraction {
+        fun getLogin(): String
+    }
+
+    override fun winGame(i1: Int, i2: Int) {
+        Handler(Looper.getMainLooper()).post {
+            game_field.drawWinLine(i1, i2)
+            Toast.makeText(context, "Вы победили", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun loseGame(i1: Int, i2: Int) {
+        Handler(Looper.getMainLooper()).post {
+            game_field.drawWinLine(i1, i2)
+            Toast.makeText(context, "Вы проиграли", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(opponent: String): Fragment {
+            val fragment = GameFragment()
+            val args = Bundle()
+            args.putString("opponent", opponent)
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

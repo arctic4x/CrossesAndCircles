@@ -28,6 +28,7 @@ private const val IN_CONNECT_PLAYER_TO_GAME = "CONNECT_PLAYER_TO_GAME"
 private const val IN_DECLINE_REQUEST_TO_PLAY = "DECLINE_REQUEST_TO_PLAY"
 private const val IN_YOUR_TURN = "YOUR_TURN"
 private const val IN_SEND_ACTION = "SEND_ACTION"
+private const val IN_END_OF_GAME = "END_OF_GAME"
 
 class SocketWorker : Thread(), SocketContract {
 
@@ -40,7 +41,7 @@ class SocketWorker : Thread(), SocketContract {
     override fun run() {
         try {
             Log.d("socket_worker", "try to find server")
-            val address = InetAddress.getByName("192.168.0.112")
+            val address = InetAddress.getByName("10.0.0.102")
 
             try {
                 Log.d("socket_worker", "try to connect")
@@ -89,6 +90,10 @@ class SocketWorker : Thread(), SocketContract {
                             IN_SEND_ACTION -> {
                                 in_sendAction()
                             }
+                            IN_END_OF_GAME -> {
+                                in_endOfGame()
+                            }
+
                         }
                     }
                 }
@@ -98,6 +103,19 @@ class SocketWorker : Thread(), SocketContract {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun in_endOfGame() {
+        try {
+            val isWin = readerStream.readLine()!!.toBoolean()
+            val index1 = Integer.parseInt(readerStream.readLine())
+            val index2 = Integer.parseInt(readerStream.readLine())
+
+            Log.d("socket_worker", "in_sendAction isWin: $isWin i1: $index1 i2: $index2")
+            listener?.endOfGame(isWin, index1, index2)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -271,5 +289,6 @@ class SocketWorker : Thread(), SocketContract {
         fun opponentDeclineRequset(opponentName: String)
         fun myTurn()
         fun getAction(figure: Int, position: Int)
+        fun endOfGame(isWin: Boolean, index1: Int, index2: Int)
     }
 }

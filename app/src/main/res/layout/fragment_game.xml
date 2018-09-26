@@ -1,20 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragments.game.GameFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:text="You:"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/tv_your_name"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="56dp"
         android:textColor="@color/colorPrimary"
-        tools:text="asdasdkjsadflkj"
-        android:textSize="20sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
-        android:layout_height="wrap_content" />
+        android:textSize="16sp"
+        tools:text="asdasdkjsadflkj" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginBottom="24dp"
+        android:layout_marginRight="16dp"
+        android:text="Enemy:"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/tv_opponent_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginBottom="56dp"
+        android:layout_marginRight="16dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        tools:text="asdasdkjsadflkj" />
 
 
     <com.alsaev.myapps.crossesandcircles.view.GameFieldView

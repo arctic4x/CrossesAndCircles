@@ -134,7 +134,7 @@ class MenuFragment : Fragment(), MenuContract.Vview {
 
     override fun setLogin(login: String) {
         Handler(Looper.getMainLooper()).post {
-            tv_your_name.text = login
+            tv_your_name.text = login.toString()
         }
     }
 

@@ -8,6 +8,7 @@ import com.alsaev.myapps.crossesandcircles.ui.fragments.menu.MenuFragment
 import com.alsaev.myapps.crossesandcircles.ui.fragments.registration.RegistrationFragment
 import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter.*
 import com.alsaev.myapps.crossesandcircles.utils.NotificationCenter
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), MainContract.Vview,
         RegistrationFragment.FragmentInteraction,
@@ -45,6 +46,6 @@ class MainActivity : AppCompatActivity(), MainContract.Vview,
     }
 
     override fun openGameFragment(opponent: String) {
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, GameFragment()).addToBackStack(null).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_contrainer, GameFragment.newInstance(opponent)).addToBackStack(null).commit()
     }
 }
